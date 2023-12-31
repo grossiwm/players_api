@@ -1,17 +1,19 @@
+mod database;
+mod error_handler;
+mod player;
+mod schema;
+
 use std::env;
 
-use actix_web::{HttpServer, App, HttpResponse, Responder};
-// use serde::{Deserialize, Serialize};
+use actix_web::{App, HttpServer};
 use dotenv::dotenv;
 use listenfd::ListenFd;
-mod hello;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-    // db::init();
     let mut listenfd = ListenFd::from_env();
-    let mut server = HttpServer::new(|| App::new().configure(hello::init_routes));
+    let mut server = HttpServer::new(|| App::new().configure(player::init_routes));
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,
         None => {
@@ -21,8 +23,4 @@ async fn main() -> std::io::Result<()> {
         }
     };
     server.run().await
-}
-
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello World!")
 }

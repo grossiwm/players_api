@@ -1,8 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE players (
-    PlayerID INT AUTO_INCREMENT PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    Balance DECIMAL(10, 2) NOT NULL,
-    Email VARCHAR(255),
-    Password VARCHAR(255),
+    player_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    `password` VARCHAR(255)
 );
