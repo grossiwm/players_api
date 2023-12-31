@@ -8,18 +8,17 @@ use crate::database::establish_connection;
 use crate::schema::players::dsl::*;
 
 
-#[derive(Queryable, Selectable, Serialize, Deserialize)]
+#[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::players)]
 #[diesel(check_for_backend(diesel::mysql::Mysql))]
 pub struct Player {
-    #[serde(skip_deserializing)]
     pub player_id: i32,
     pub username: String,
     pub email: Option<String>,
     pub password: Option<String>
 }
 
-#[derive(Insertable, AsChangeset, Serialize, Deserialize)]
+#[derive(Insertable, AsChangeset, Deserialize)]
 #[diesel(table_name = crate::schema::players)]
 pub struct NoIdPlayer {
     pub username: String,
