@@ -26,17 +26,34 @@ pub struct NoIdPlayer {
     pub password: Option<String>
 }
 
+#[derive(Serialize, Queryable)]
+#[diesel(table_name = crate::schema::players)]
+pub struct PlayerSafe {
+    pub player_id: i32,
+    pub username: String,
+    pub email: Option<String>,
+}
+
 impl Player {
-    pub fn find_all() -> Result<Vec<Self>, CustomError> {
+    pub fn find_all() -> Result<Vec<PlayerSafe>, CustomError> {
         let conn = &mut establish_connection();
-        let result = players.load::<Player>(conn).expect("Failed to load all players");
+        let result = 
+        players.select((player_id, username, email))
+        .load::<PlayerSafe>(conn).expect("Failed to load all players");
         Ok(result)
     }
 
-    pub fn find(id: i32) -> Result<Self, CustomError> {
+    pub fn find(id: i32) -> Result<PlayerSafe, CustomError> {
         let conn = &mut establish_connection();
-        let player = players.find(id).first(conn).expect("Failed to find player with the given ID");
-        Ok(player)
+        let player = players.find(id).first::<Player>(conn).expect("Failed to find player with the given ID");
+
+        let safe_player = PlayerSafe {
+            player_id: player.player_id,
+            username: player.username,
+            email: player.email,
+        };
+
+        Ok(safe_player)
     }
 
     pub fn create(player: NoIdPlayer) {

@@ -2,6 +2,7 @@ mod database;
 mod error_handler;
 mod player;
 mod schema;
+mod wallet;
 
 use std::env;
 
@@ -13,7 +14,9 @@ use listenfd::ListenFd;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let mut listenfd = ListenFd::from_env();
-    let mut server = HttpServer::new(|| App::new().configure(player::init_routes));
+    let mut server = HttpServer::new(|| App::new()
+    .configure(player::init_routes)
+    .configure(wallet::init_routes));
     server = match listenfd.take_tcp_listener(0)? {
         Some(listener) => server.listen(listener)?,
         None => {
