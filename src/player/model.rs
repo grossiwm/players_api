@@ -29,19 +29,19 @@ pub struct NoIdPlayer {
 impl Player {
     pub fn find_all() -> Result<Vec<Self>, CustomError> {
         let conn = &mut establish_connection();
-        let result = players.load::<Player>(conn).expect("error");
+        let result = players.load::<Player>(conn).expect("Failed to load all players");
         Ok(result)
     }
 
     pub fn find(id: i32) -> Result<Self, CustomError> {
         let conn = &mut establish_connection();
-        let player = players.find(id).first(conn).expect("error");
+        let player = players.find(id).first(conn).expect("Failed to find player with the given ID");
         Ok(player)
     }
 
     pub fn create(player: NoIdPlayer) {
         let conn = &mut establish_connection();
-        diesel::insert_into(players).values(&player).execute(conn).expect("msg");
+        diesel::insert_into(players).values(&player).execute(conn).expect("Failed to create new player");
     }
 
     pub fn update(id: i32, player: NoIdPlayer) {
@@ -50,12 +50,12 @@ impl Player {
         let _ = diesel::update(players)
             .filter(player_id.eq(id))
             .set(player)
-            .execute(conn).expect("msg");
+            .execute(conn).expect("Failed to update player with the specified ID");
     }
 
     pub fn delete(id: i32) {
         let conn = &mut establish_connection();
-        let _ = diesel::delete(players.filter(player_id.eq(id))).execute(conn);
+        let _ = diesel::delete(players.filter(player_id.eq(id))).execute(conn).expect("Failed to delete player with the specified ID");
     }
 
     }
