@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::auth::Authenticable;
 use crate::database::establish_connection;
 use crate::error_handler::CustomError;
 
@@ -41,10 +42,10 @@ pub struct PlayerSafe {
     pub email: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: String,
-    pub exp: usize,
+impl Authenticable for Player {
+    fn get_username(&self) -> String {
+        self.username.clone()
+    }
 }
 
 impl Player {
