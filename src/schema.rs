@@ -6,9 +6,9 @@ diesel::table! {
         #[max_length = 255]
         username -> Varchar,
         #[max_length = 255]
-        email -> Nullable<Varchar>,
+        email -> Varchar,
         #[max_length = 255]
-        password -> Nullable<Varchar>,
+        password -> Varchar,
     }
 }
 

@@ -1,4 +1,5 @@
-use crate::{error_handler::CustomError, player::{Player, NoIdPlayer}};
+
+use crate::{error_handler::CustomError, auth::generate_jwt, player::{Player, NoIdPlayer, AuthenticablePlayer}};
 use actix_web::{get, post, delete, put, web, HttpResponse};
 
 
@@ -27,12 +28,23 @@ async fn delete(id: web::Path<i32>) -> Result<HttpResponse, CustomError> {
 }
 
 #[put("/players/{id}")]
-async fn update(
-    id: web::Path<i32>,
-    player: web::Json<NoIdPlayer>,
-) -> Result<HttpResponse, CustomError> {
+async fn update(id: web::Path<i32>, player: web::Json<NoIdPlayer>) -> Result<HttpResponse, CustomError> {
     let _ = Player::update(id.into_inner(), player.into_inner());
     Ok(HttpResponse::Ok().finish())
+}
+
+#[post("/players/authenticate")]
+async fn authenticate(player: web::Json<AuthenticablePlayer>) -> Result<HttpResponse, CustomError> {
+    let authenticated_player = Player::authenticate(player.into_inner());
+    match authenticated_player {
+        Ok(player) => {
+            let token  = generate_jwt(player);
+            Ok(HttpResponse::Ok().json(serde_json::json!({ "token": token })))
+        },
+        Err(_) => {
+            Ok(HttpResponse::Unauthorized().finish())
+        }
+    }
 }
 
 pub fn init_routes(config: &mut web::ServiceConfig) {
@@ -41,4 +53,5 @@ pub fn init_routes(config: &mut web::ServiceConfig) {
     config.service(create);
     config.service(delete);
     config.service(update);
+    config.service(authenticate);
 }

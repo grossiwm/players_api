@@ -3,6 +3,7 @@ mod error_handler;
 mod player;
 mod schema;
 mod wallet;
+mod auth;
 
 use std::env;
 
