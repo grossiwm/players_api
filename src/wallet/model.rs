@@ -1,8 +1,15 @@
+use std::env;
+use std::str::FromStr;
+
 use diesel::prelude::*;
-use ethers::core::k256::FieldBytes;
 use ethers::core::rand;
+use ethers::providers::Http;
+use ethers::providers::Middleware;
+use ethers::providers::Provider;
 use ethers::signers::LocalWallet;
 use ethers::signers::Signer;
+use ethers::types::Address;
+use hex::ToHex;
 
 use crate::database::establish_connection;
 use crate::schema::wallets::dsl::*;
@@ -22,13 +29,14 @@ pub struct NewWallet {
     pub private_key: String,
 }
 
+
 impl Wallet {
 
     pub fn create(pid: i32) {
         let conn = &mut establish_connection();
         let wallet = LocalWallet::new(&mut rand::thread_rng());
         let pubk = format!("{:?}",wallet.address());
-        let privk = Self::encrypt(wallet.signer().to_bytes()).to_string();
+        let privk = wallet.signer().to_bytes().encode_hex();
 
         let new_wallet = NewWallet {
             player_id: pid,
@@ -42,8 +50,14 @@ impl Wallet {
             .expect("Failed to create new wallet");
     }
 
-    fn encrypt(_b: FieldBytes) -> &'static str {
-        let r = "aaaaa";
-        r
+    pub async fn get_balance(provider: Provider<Http>, address: &str) -> String {
+        let address = Address::from_str(address).unwrap();
+        let balance = provider.get_balance(address, None).await.unwrap();
+        format!("Saldo: {}", balance)
+    }
+
+    fn get_provider() -> Provider<Http> {
+        let provider_uri = &env::var("ETHEREUM_NETWORK_RPC_URL").expect("Please set ethereum provider in .env");
+        Provider::<Http>::try_from(provider_uri).expect(&format!("Could not get provider at {}", provider_uri))
     }
 }
