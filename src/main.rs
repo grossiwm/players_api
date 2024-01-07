@@ -4,6 +4,7 @@ mod player;
 mod schema;
 mod wallet;
 mod auth;
+mod ethereum_service;
 
 use std::env;
 

@@ -17,7 +17,7 @@ diesel::table! {
         wallet_id -> Integer,
         player_id -> Integer,
         #[max_length = 255]
-        public_key -> Varchar,
+        address -> Varchar,
         #[max_length = 255]
         private_key -> Varchar,
     }
